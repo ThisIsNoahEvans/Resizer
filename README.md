@@ -1,0 +1,2 @@
+# Resizer
+Easily resize images

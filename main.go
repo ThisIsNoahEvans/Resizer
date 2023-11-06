@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"image"
-	_ "image/png"
+	"image/gif"
 	"image/jpeg"
+	"image/png"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -29,10 +31,16 @@ func main() {
 	}
 	defer file.Close()
 
-	// Decode the image.
-	img, _, err := image.Decode(file)
+	// Decode the image to find out the format.
+	img, format, err := image.Decode(file)
 	if err != nil {
 		fmt.Println("Error decoding image:", err)
+		os.Exit(1)
+	}
+
+	// Seek to the beginning of the file for future reads.
+	if _, err := file.Seek(0, 0); err != nil {
+		fmt.Println("Error seeking file:", err)
 		os.Exit(1)
 	}
 
@@ -64,15 +72,32 @@ func main() {
 		m := resize.Resize(width, height, img, resize.Lanczos3)
 
 		// Create the output file.
-		out, err := os.Create(fmt.Sprintf("%s_%dx%d.jpg", strings.TrimSuffix(imagePath, ".png"), width, height))
+		outputFileName := fmt.Sprintf("%s_%dx%d%s", strings.TrimSuffix(imagePath, filepath.Ext(imagePath)), width, height, filepath.Ext(imagePath))
+		out, err := os.Create(outputFileName)
 		if err != nil {
 			fmt.Println("Error creating file:", err)
 			continue
 		}
 		defer out.Close()
 
-		// Write the new image to file.
-		jpeg.Encode(out, m, nil)
-		fmt.Printf("Resized image to %dx%d and saved as %s_%dx%d.jpg\n", width, height, strings.TrimSuffix(imagePath, ".png"), width, height)
+		// Encode the image in the original format.
+		switch format {
+		case "jpeg":
+			err = jpeg.Encode(out, m, nil)
+		case "png":
+			err = png.Encode(out, m)
+		case "gif":
+			err = gif.Encode(out, m, nil)
+		default:
+			fmt.Printf("Unsupported image format: %s\n", format)
+			err = fmt.Errorf("unsupported image format: %s", format)
+		}
+
+		if err != nil {
+			fmt.Printf("Error encoding image: %s\n", err)
+			continue
+		}
+
+		fmt.Printf("Resized image to %dx%d and saved as %s\n", width, height, outputFileName)
 	}
 }

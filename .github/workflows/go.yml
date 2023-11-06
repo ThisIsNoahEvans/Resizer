@@ -1,0 +1,94 @@
+name: Go Build & Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.21.3"
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build Binary for Linux
+        run: GOOS=linux GOARCH=amd64 go build -o resizer-linux-amd64
+
+      - name: Build Binary for macOS
+        run: GOOS=darwin GOARCH=amd64 go build -o resizer-darwin-amd64
+
+      - name: Build Binary for macOS ARM
+        run: GOOS=darwin GOARCH=arm64 go build -o resizer-darwin-arm64
+
+      - name: Build Binary for Windows
+        run: GOOS=windows GOARCH=amd64 go build -o resizer-windows-amd64.exe
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries
+          path: |
+            resizer-linux-amd64
+            resizer-darwin-amd64
+            resizer-windows-amd64.exe
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset for Linux
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./resizer-linux-amd64
+          asset_name: resizer-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset for macOS
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./resizer-darwin-amd64
+          asset_name: resizer-darwin-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset for macOS ARM
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./resizer-darwin-arm64
+          asset_name: resizer-darwin-arm64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset for Windows
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./resizer-windows-amd64.exe
+          asset_name: resizer-windows-amd64.exe
+          asset_content_type: application/octet-stream

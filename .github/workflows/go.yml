@@ -33,26 +33,32 @@ jobs:
       - name: Build Binary for Windows
         run: GOOS=windows GOARCH=amd64 go build -o resizer-windows-amd64.exe
 
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: binaries
-          path: |
-            resizer-linux-amd64
-            resizer-darwin-amd64
-            resizer-windows-amd64.exe
+      - name: Determine new tag
+        id: newtag
+        run: |
+          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          NEW_TAG="${TAG%.*}.$((${TAG##*.}+1))"
+          echo "Creating new tag $NEW_TAG"
+          echo "::set-output name=tag::$NEW_TAG"
+        shell: bash
 
-      - name: Create Release
+      - name: Push new tag
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag ${{ steps.newtag.outputs.tag }}
+          git push origin ${{ steps.newtag.outputs.tag }}
+
+      - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: ${{ steps.newtag.outputs.tag }}
+          release_name: Release ${{ steps.newtag.outputs.tag }}
           draft: false
           prerelease: false
-    
 
       - name: Upload Release Asset for Linux
         uses: actions/upload-release-asset@v1

@@ -1,10 +1,9 @@
 name: Go Build & Release
 
-on:
-    push:
-      branches:
-        - main
-
+on: 
+    release:
+      types: [created]
+  
 permissions:
       contents: write
       packages: write

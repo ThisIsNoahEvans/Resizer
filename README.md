@@ -26,7 +26,7 @@ Supported formats: JPEG, PNG, GIF.
 Output files are saved in the same directory as the source, appended with the specified size. For example, `./resizer /path/to/image.png 1024` creates `/path/to/image_1024x1024.png`.
 
 ## Speed
-Using `test.sh`, a very quick test I wrote, Resizer is * 221 seconds faster than ImageMagick **
+Using `test.sh`, a very quick test I wrote, Resizer is ** 221 seconds faster than ImageMagick **
 ```
 Comparison:
 Resizer: 23 seconds

@@ -25,3 +25,7 @@ go.work
 
 # binary
 resizer
+
+# test output
+test_images/imagemagick-output
+test_images/resizer-output

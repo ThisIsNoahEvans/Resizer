@@ -1,5 +1,5 @@
 # Resizer
-A simple tool to resize images in various formats.
+A simple and fast tool to resize images in various formats.
 
 ## Usage
 Resize images by specifying the file paths and desired sizes:

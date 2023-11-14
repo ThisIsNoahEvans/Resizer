@@ -1,31 +1,26 @@
 # Resizer
-Easily resize images
+A simple tool to resize images in various formats.
 
-## Usage:
-`Usage: ./resizer <image_paths> <sizes> ...`
+## Usage
+Resize images by specifying the file paths and desired sizes:
 
-Sizes can be a single number, to resize into a square:
-`./resizer <image_path> 1024 ...`
+- **Square Size:** Resize to a square by providing a single number:
+  
+`./resizer <image_path> 1024`
 
-Or they can be exact, using 'x' as a splitter:
-`./resizer <image_path> 500x300 ...`
+- **Exact Size:** Specify width and height with 'x':
+  
+`./resizer <image_path> 500x300`
 
-Individual sizes are separated by a space.
+- **Multiple Sizes:** Separate sizes with spaces:
+  
+`./resizer <image_path> 512x512 1024x1024`
 
-Add as many sizes as you want, mixing between both square & exact measurements.
-
-Specify as many file paths as you want, including by using wildcards:
-
+- **Multiple Images:** Include multiple images, even using wildcards:
+  
 `./resizer images/* 1024x1024`
-
 `./resizer img1.png img2.png 512x512 1024x1024`
 
-Supports JPEG, PNG, and GIF.
+Supported formats: JPEG, PNG, GIF.
 
-Results will be stored in the same directory as the input file, with the size at the end:
-
-`./resizer /path/to/my/image.png 1024`
-
-will result in a file named 
-
-`/path/to/my/image_1024x1024.png`
+Output files are saved in the same directory as the source, appended with the specified size. For example, `./resizer /path/to/image.png 1024` creates `/path/to/image_1024x1024.png`.
